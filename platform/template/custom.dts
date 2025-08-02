@@ -40,10 +40,10 @@
     };
 
     // dram
-    memory@c0000000 {
+    memory@80000000 {
         device_type = "memory";
         // reg = <base_address size>
-        reg = <0xc0000000 0x8000000>;
+        reg = <0x80000000 0x8000000>;
     };
 
     soc {
@@ -62,7 +62,7 @@
         };
 
         custom_uart: custom_uart@ff000000 {
-            compatible = "custom_uart";
+            compatible = "sbi,console";
             reg = <0xff000000 0x10000>; // Base: 0xFF000000, Size: 0xFFFF + 1
             clock-frequency = <50000000>;
             current-speed = <921600>;
