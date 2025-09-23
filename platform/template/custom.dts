@@ -7,43 +7,36 @@
     model = "CVA6-SoC";
 
     chosen {
-        //bootargs = "console=ttyS0,115200 earlycon";
-        //bootargs = "earlycon=sbi console=hvc0,115200";
         bootargs = "console=hvc0 earlycon=sbi";
-        stdout-path = &custom_uart;
     };
 
     cpus {
         #address-cells = <1>;
         #size-cells = <0>;
-        // clint rtc clock freq
         timebase-frequency = <1000000>;
 
         cpu@0 {
             device_type = "cpu";
-            reg = <0>; // HART_ID
+            reg = <0>;
             status = "okay";
             compatible = "riscv";
             riscv,isa = "rv32imac";
             mmu-type = "riscv,sv32";
-            clock-frequency = <50000000>; // cpu clk
+            clock-frequency = <50000000>;
 
-            // clint
             intc: interrupt-controller {
                 #interrupt-cells = <1>;
                 #address-cells = <0>;
-				#size-cells = <0>;
+                #size-cells = <0>;
                 compatible = "riscv,cpu-intc";
                 interrupt-controller;
             };
         };
     };
 
-    // dram
     memory@80000000 {
         device_type = "memory";
-        // reg = <base_address size>
-        reg = <0x80000000 0x30000000>;
+        reg = <0x80000000 0x10000000>;
     };
 
     soc {
@@ -54,27 +47,14 @@
 
         clint: clint@ff080000 {
             compatible = "riscv,clint0";
-            reg = <0xff080000 0x10000>; // Base: 0xFF080000, Size: 0xFFFF + 1
-            // Route interrupts to the CPU's interrupt controller (intc)
-            // Line 3 is Machine Software Interrupt (IPI)
-            // Line 7 is Machine Timer Interrupt (MTIMER)
+            reg = <0xff080000 0x10000>;
             interrupts-extended = <&intc 3 &intc 7>;
         };
 
-        custom_uart: custom_uart@ff000000 {
-            compatible = "sbi,console";
-            reg = <0xff000000 0x10000>; // Base: 0xFF000000, Size: 0xFFFF + 1
-            clock-frequency = <50000000>;
-            current-speed = <921600>;
+        // Use kernel's SBI HVC driver
+        // It does not need reg, clock, or speed properties as it is a virtual device
+        sbi_hvc: sbi-hvc {
+            compatible = "riscv,sbi-hvc";
         };
-
-        //timer@ff050000 {
-        //     compatible = "riscv,timer";
-        //     reg = <0xff050000 0x10000>;
-        //};
     };
-
-    //hsm {
-    //    compatible = "sbi,hsm-noop";
-    //};
 };
