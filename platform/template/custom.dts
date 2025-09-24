@@ -1,60 +1,54 @@
 /dts-v1/;
 
 / {
-    #address-cells = <1>;
-    #size-cells = <1>;
-    compatible = "custom-platform", "simple-bus";
-    model = "CVA6-SoC";
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "riscv-soc";
+	model = "CVA6-SoC";
 
-    chosen {
-        bootargs = "console=hvc0 earlycon=sbi";
-    };
+	aliases {
+		serial0 = &hvc;
+	};
 
-    cpus {
-        #address-cells = <1>;
-        #size-cells = <0>;
-        timebase-frequency = <1000000>;
+	chosen {
+		bootargs = "console=hvc0 earlycon=sbi";
+		stdout-path = "serial0";
+	};
 
-        cpu@0 {
-            device_type = "cpu";
-            reg = <0>;
-            status = "okay";
-            compatible = "riscv";
-            riscv,isa = "rv32imac";
-            mmu-type = "riscv,sv32";
-            clock-frequency = <50000000>;
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <1000000>;
 
-            intc: interrupt-controller {
-                #interrupt-cells = <1>;
-                #address-cells = <0>;
-                #size-cells = <0>;
-                compatible = "riscv,cpu-intc";
-                interrupt-controller;
-            };
-        };
-    };
+		cpu@0 {
+			device_type = "cpu";
+			reg = <0>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv32imac";
+			mmu-type = "riscv,sv32";
+			clock-frequency = <50000000>;
 
-    memory@80000000 {
-        device_type = "memory";
-        reg = <0x80000000 0x10000000>;
-    };
+			intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				interrupt-controller;
+				compatible = "riscv,cpu-intc";
+			};
+		};
+	};
 
-    soc {
-        #address-cells = <1>;
-        #size-cells = <1>;
-        compatible = "simple-bus";
-        ranges;
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x30000000>;
+	};
 
-        clint: clint@ff080000 {
-            compatible = "riscv,clint0";
-            reg = <0xff080000 0x10000>;
-            interrupts-extended = <&intc 3 &intc 7>;
-        };
+	clint@ff080000 {
+		compatible = "riscv,clint0";
+		reg = <0xff080000 0x10000>;
+		interrupts-extended = <&intc 3 &intc 7>;
+	};
 
-        // Use kernel's SBI HVC driver
-        // It does not need reg, clock, or speed properties as it is a virtual device
-        sbi_hvc: sbi-hvc {
-            compatible = "riscv,sbi-hvc";
-        };
-    };
+	hvc: sbi-hvc {
+		compatible = "riscv,sbi-hvc";
+	};
 };
