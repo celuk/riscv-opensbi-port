@@ -94,18 +94,14 @@ static int platform_final_init(bool cold_boot)
 	
 	//sbi_hsm_set_device(&custom_hsm);
 
-	sbi_printf(">>>> DEBUG: INSIDE platform_final_init() <<<<\n");
+	sbi_printf(">>>> DEBUG: Manually enabling Machine Timer Interrupt in MIE <<<<\n");
 
-	// Delegate all interrupts to S mode
-	unsigned long val;
-	val = csr_read(CSR_MIDELEG);
-	val |= (1 << IRQ_S_SOFT) | (1 << IRQ_S_TIMER) | (1 << IRQ_S_EXT);
-	csr_write(CSR_MIDELEG, val);
+	unsigned long mie_val;
+	mie_val = csr_read(CSR_MIE);
+	mie_val |= (1UL << IRQ_M_TIMER);
+	csr_write(CSR_MIE, mie_val);
 
-	// Delegate machine timer interrupt to S mode
-	val = csr_read(CSR_MIDELEG);
-	val |= (1 << IRQ_M_TIMER);
-	csr_write(CSR_MIDELEG, val);
+	sbi_printf(">>>> DEBUG: MIE CSR is now 0x%lx\n", csr_read(CSR_MIE));
 
 	return 0;
 }
