@@ -2,6 +2,7 @@
 #include <sbi/riscv_encoding.h>
 #include <sbi/sbi_const.h>
 #include <sbi/sbi_platform.h>
+#include <sbi/sbi_console.h>
 
 #include <sbi_utils/ipi/aclint_mswi.h>
 #include <sbi_utils/timer/aclint_mtimer.h>
@@ -92,6 +93,8 @@ static int platform_final_init(bool cold_boot)
 		return 0;
 	
 	//sbi_hsm_set_device(&custom_hsm);
+
+	sbi_printf(">>>> DEBUG: INSIDE platform_final_init() <<<<\n");
 
 	// Delegate all interrupts to S mode
 	unsigned long val;
