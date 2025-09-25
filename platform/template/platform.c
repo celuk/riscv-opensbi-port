@@ -88,10 +88,22 @@ static int platform_early_init(bool cold_boot)
  */
 static int platform_final_init(bool cold_boot)
 {
-	//if (!cold_boot)
-	//	return 0;
-	//
+	if (!cold_boot)
+		return 0;
+	
 	//sbi_hsm_set_device(&custom_hsm);
+
+	// Delegate all interrupts to S mode
+	unsigned long val;
+	val = csr_read(CSR_MIDELEG);
+	val |= (1 << IRQ_S_SOFT) | (1 << IRQ_S_TIMER) | (1 << IRQ_S_EXT);
+	csr_write(CSR_MIDELEG, val);
+
+	// Delegate machine timer interrupt to S mode
+	val = csr_read(CSR_MIDELEG);
+	val |= (1 << IRQ_M_TIMER);
+	csr_write(CSR_MIDELEG, val);
+
 	return 0;
 }
 

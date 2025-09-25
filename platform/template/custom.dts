@@ -31,6 +31,8 @@
 
 			intc: interrupt-controller {
 				#interrupt-cells = <1>;
+				#address-cells = <0>;
+				#size-cells = <0>;
 				interrupt-controller;
 				compatible = "riscv,cpu-intc";
 			};
