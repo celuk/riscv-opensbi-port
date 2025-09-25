@@ -2,20 +2,11 @@
 #include <sbi/riscv_encoding.h>
 #include <sbi/sbi_const.h>
 #include <sbi/sbi_platform.h>
-#include <sbi/sbi_console.h>
 
-#include <sbi_utils/ipi/aclint_mswi.h>
-#include <sbi_utils/timer/aclint_mtimer.h>
 #include <sbi_utils/serial/custom_uart.h>
-
-//#include <sbi/sbi_hart.h>
-//#include <sbi/sbi_ipi.h>
-//#include <sbi/sbi_hsm.h>
-
-#define PLATFORM_CLINT_ADDR		0xFF080000
-#define PLATFORM_ACLINT_MTIMER_FREQ	1000000
-#define PLATFORM_ACLINT_MSWI_ADDR	(PLATFORM_CLINT_ADDR + CLINT_MSWI_OFFSET)
-#define PLATFORM_ACLINT_MTIMER_ADDR	(PLATFORM_CLINT_ADDR + CLINT_MTIMER_OFFSET)
+#include <sbi_utils/irqchip/plic.h>
+#include <sbi_utils/ipi/fdt_ipi.h>
+#include <sbi_utils/timer/fdt_timer.h>
 
 #define PLATFORM_HART_COUNT		1
 
@@ -23,48 +14,9 @@
 #define CPU_CLK (CPU_MHZ * 1000000)
 #define BAUD_RATE 921600
 
-//static int custom_hsm_hart_start(u32 hartid, ulong saddr)
-//{
-//	sbi_ipi_send_smode(hartid, 0);
-//	return 0;
-//}
-//
-//// While power downing a hart we are just hanging.
-//static int custom_hsm_hart_stop()
-//{
-//	sbi_hart_hang();
-//	return 0;
-//}
-//
-//const struct sbi_hsm_device custom_hsm = {
-//	.name		= "custom-hsm",
-//	.hart_start	= custom_hsm_hart_start,
-//	.hart_stop	= custom_hsm_hart_stop,
-//};
-
-static struct aclint_mswi_data mswi = {
-	.addr = PLATFORM_ACLINT_MSWI_ADDR,
-	.size = ACLINT_MSWI_SIZE,
-	.first_hartid = 0,
-	.hart_count = PLATFORM_HART_COUNT,
-};
-
-static struct aclint_mtimer_data mtimer = {
-	.mtime_freq = PLATFORM_ACLINT_MTIMER_FREQ,
-	.mtime_addr = PLATFORM_ACLINT_MTIMER_ADDR +
-		      ACLINT_DEFAULT_MTIME_OFFSET,
-	.mtime_size = ACLINT_DEFAULT_MTIME_SIZE,
-	.mtimecmp_addr = PLATFORM_ACLINT_MTIMER_ADDR +
-			 ACLINT_DEFAULT_MTIMECMP_OFFSET,
-	.mtimecmp_size = ACLINT_DEFAULT_MTIMECMP_SIZE,
-	.first_hartid = 0,
-	.hart_count = PLATFORM_HART_COUNT,
-	.has_64bit_mmio = false,
-};
-
 static int platform_ipi_init(void)
 {
-	return aclint_mswi_cold_init(&mswi);
+	return fdt_ipi_init();
 }
 
 /*
@@ -89,19 +41,10 @@ static int platform_early_init(bool cold_boot)
  */
 static int platform_final_init(bool cold_boot)
 {
-	if (!cold_boot)
-		return 0;
+	//if (!cold_boot)
+	//	return 0;
 	
 	//sbi_hsm_set_device(&custom_hsm);
-
-	sbi_printf(">>>> DEBUG: Manually enabling Machine Timer Interrupt in MIE <<<<\n");
-
-	unsigned long mie_val;
-	mie_val = csr_read(CSR_MIE);
-	mie_val |= (1UL << IRQ_M_TIMER);
-	csr_write(CSR_MIE, mie_val);
-
-	sbi_printf(">>>> DEBUG: MIE CSR is now 0x%lx\n", csr_read(CSR_MIE));
 
 	return 0;
 }
@@ -111,8 +54,7 @@ static int platform_final_init(bool cold_boot)
  */
 static int platform_timer_init(void)
 {
-	return aclint_mtimer_cold_init(&mtimer, NULL);
-	//return 0;
+	return fdt_timer_init();
 }
 
 /*
