@@ -38,7 +38,14 @@ static char zgetchar()
 
 static int custom_uart_getc(void)
 {
-	return uart_rxempty() ? -1 : zgetchar();
+    //if ((UART_CFG & 0x2) == 0) {
+    //	return -1;
+    //}
+//
+    //return (char)UART_RDR;
+
+	//return zgetchar();
+    return uart_rxempty() ? -1 : zgetchar();
 	//return -1;
 }
 
