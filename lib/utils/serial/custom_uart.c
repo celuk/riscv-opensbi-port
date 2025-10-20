@@ -23,17 +23,18 @@ static void custom_uart_putc(char ch)
 	zputchar(ch);
 }
 
-static int uart_rxempty()
+int uart_rxempty()
 {
     return (UART_CFG & 0x2) == 0;
 }
 
-static char zgetchar()
+char zgetchar()
 {
-    while (uart_rxempty()) {}
+    //while (uart_rxempty()) {}
+    if (uart_rxempty()) return -1;
     char c = (char)UART_RDR;
-    UART_CFG &= ~0x2;
-    return c;
+    if((UART_CFG & 0x2) != 0) return c;
+    return -1;
 }
 
 static int custom_uart_getc(void)
@@ -44,8 +45,8 @@ static int custom_uart_getc(void)
 //
     //return (char)UART_RDR;
 
-	//return zgetchar();
-    return uart_rxempty() ? -1 : zgetchar();
+	return zgetchar();
+    //return uart_rxempty() ? -1 : zgetchar();
 	//return -1;
 }
 
