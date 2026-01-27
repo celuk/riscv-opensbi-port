@@ -40,17 +40,11 @@ bool sbi_isprintable(char c)
 	return false;
 }
 
-#define UART_RDR (*(volatile unsigned int*)0xFF000008)
-#define UART_CFG       (*(volatile unsigned int*)0xFF000010)
-
 int sbi_getc(void)
 {
-	//if (console_dev && console_dev->console_getc)
-	//	return console_dev->console_getc();
-	//return -1;
-	while ((UART_CFG & 0x2) == 0) {}
-    char c = (char)UART_RDR;
-    return c;
+	if (console_dev && console_dev->console_getc)
+		return console_dev->console_getc();
+	return -1;
 }
 
 static unsigned long nputs(const char *str, unsigned long len)
