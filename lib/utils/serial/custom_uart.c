@@ -38,11 +38,13 @@ static void custom_uart_putc(char ch)
 
 static int custom_uart_getc(void)
 {
-    if ((UART_CFG & 0x2) == 0) {
-    	return -1;
-    }
+    //if ((UART_CFG & 0x2) == 0) {
+    //	return -1;
+    //}
 
-    return (int)UART_RDR;
+    //return (int)UART_RDR;
+
+    return -1;
 
 	//return zgetchar();
     //return uart_rxempty() ? -1 : zgetchar();
