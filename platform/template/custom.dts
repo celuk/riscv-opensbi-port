@@ -41,7 +41,7 @@
 
 	memory@80000000 {
 		device_type = "memory";
-		reg = <0x80000000 0x40000000>;
+		reg = <0x80000000 0x0fffffff>;
 	};
 
 	clint@ff080000 {
